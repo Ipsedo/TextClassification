@@ -4,12 +4,10 @@ from nltk.stem import WordNetLemmatizer
 from random import choice, shuffle
 from tqdm import tqdm
 
-
-
 __padding__ = "<padding>"
 lemma = WordNetLemmatizer()
 lemma.lemmatize("unused")
-english_stopwords = open("./english_stopwords.txt").read().split()
+english_stopwords = open("./datasets/english_stopwords.txt").read().split()
 
 
 def split_doc(s):
