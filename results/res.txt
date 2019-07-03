@@ -1,0 +1,29 @@
+        self.emb = nn.Embedding(vocab_size, 8, padding_idx=padding_idx)
+
+        self.seq_conv = nn.Sequential(
+            nn.Conv1d(8, 12, kernel_size=3),
+            nn.MaxPool1d(4, 4),
+            nn.ReLU()
+        )
+
+        self.seq_lin = nn.Sequential(
+            nn.Linear(1656, nb_class),
+            nn.Softmax(dim=1)
+        )
+
+nn.NLLLoss()
+th.optim.SGD(m.parameters(), lr=1e-3)
+
+---> resultats :
+Test : correct = 1782 / 2444, 0.729133
+
+AUC earn = 0.967511
+AUC acq = 0.948722
+AUC money-fx = 0.795420
+AUC grain = 0.805381
+AUC crude = 0.938438
+AUC trade = 0.872333
+AUC interest = 0.931114
+AUC wheat = nan
+AUC ship = 0.879055
+AUC corn = 0.907459
