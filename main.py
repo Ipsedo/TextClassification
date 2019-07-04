@@ -8,6 +8,8 @@ from math import ceil
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from torchnet.meter import AUCMeter
+import gc, sys
+from pympler.tracker import SummaryTracker
 
 
 nltk.download('reuters')
@@ -275,6 +277,8 @@ def wiki():
 
 
 def dbpedia():
+    tracker = SummaryTracker()
+
     dbpedia = open("./datasets/dbpedia_pp.txt").readlines()
 
     x = []
@@ -329,12 +333,16 @@ def dbpedia():
     print(x_train.size(), y_train.size())
     print(x_dev.size(), y_dev.size())
 
+    tracker.print_diff()
+    a = input("A : ")
+    exit()
+
     batch_size = 16
     nb_batch = ceil(x_train.size(0) / batch_size)
 
     nb_epoch = 10
 
-    m = ConvModelDBPedia_V2(len(vocab), len(class_to_idx), vocab[__padding__])
+    m = ConvModelDBPedia_V1(len(vocab), len(class_to_idx), vocab[__padding__])
     loss_fn = nn.NLLLoss()
 
     m.cuda()

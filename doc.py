@@ -117,18 +117,19 @@ def pass_to_idx_and_padd(sentence_list, vocab, max_len):
 def filter_size(data, labels, limit=1000):
     tmp = list(filter(lambda t: len(t[0]) < limit, list(zip(data, labels))))
 
-    return zip(*tmp)
+    x, y = zip(*tmp)
+    return list(x), list(y)
 
 
 def count_world(sentence_list):
     count = {}
-    for s in sentence_list:
+    for s in tqdm(sentence_list):
         for w in s:
             count[w] = count[w] + 1 if w in count else 1
     return count
 
 
 def filter_word_occ(sentence_list, word_count, limit=10):
-    return [[w for w in s if word_count[w] > limit] for s in sentence_list]
+    return [[w for w in s if word_count[w] > limit] for s in tqdm(sentence_list)]
 
 
