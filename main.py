@@ -9,6 +9,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 from torchnet.meter import AUCMeter
 import gc
+import numpy as np
 
 
 nltk.download('reuters')
@@ -275,8 +276,8 @@ def wiki():
     plt.show()
 
 
-def dbpedia():
-    dbpedia = open("./datasets/dbpedia_pp_simplified.txt").readlines()
+def visu_dbpedia():
+    dbpedia = open("./datasets/dbpedia_pp_simplified-2.txt").readlines()
 
     x = []
     y = []
@@ -297,6 +298,36 @@ def dbpedia():
 
     print(len(class_to_idx))
     print(class_count)
+
+    count = np.asarray([c for _, c in class_count.items()])
+    type_name = np.asarray([t for t, _ in class_count.items()])
+
+    mask = count > 1000
+    count = count[mask]
+    type_name = type_name[mask]
+
+    plt.bar(type_name, count)
+    plt.xticks(rotation="vertical")
+    plt.show()
+
+
+def dbpedia():
+    dbpedia = open("./datasets/dbpedia_pp_simplified-2.txt").readlines()
+
+    x = []
+    y = []
+
+    class_to_idx = {}
+
+    for l in tqdm(dbpedia):
+        lbl = l.split("|||")[0]
+        txt = l.split("|||")[1]
+
+        if lbl not in class_to_idx:
+            class_to_idx[lbl] = len(class_to_idx)
+
+        y.append(class_to_idx[lbl])
+        x.append(txt)
 
     tmp = list(zip(x, y))
     shuffle(tmp)
@@ -413,4 +444,5 @@ def dbpedia():
 if __name__ == "__main__":
     #reuters()
     #wiki()
-    dbpedia()
+    #dbpedia()
+    visu_dbpedia()
