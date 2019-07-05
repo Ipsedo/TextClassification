@@ -106,7 +106,8 @@ def pass_to_idx_and_padd(sentence_list, vocab, max_len):
     for s in tqdm(sentence_list):
         new_s = []
         for w in s:
-            new_s.append(vocab[w])
+            if w in vocab:
+                new_s.append(vocab[w])
         to_add = max_len - len(new_s)
         new_s += [vocab[__padding__]] * to_add
         res.append(new_s)
