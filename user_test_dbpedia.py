@@ -5,11 +5,11 @@ from doc import __padding__, process_doc, pass_to_idx_and_padd
 
 
 def test():
-    model_file_name = ""
-    vocab_file_name = ""
-    class_to_idx_file_name = ""
+    model_file_name = "./saved/CNN-V1_128-184-256.model"
+    vocab_file_name = "./saved/vocab.pkl"
+    class_to_idx_file_name = "./saved/class_to_idx.pkl"
 
-    doc_to_test = ""
+    doc_to_test = "/home/samuel/Documents/Stage_SG/elephant.txt"
 
     vocab = pkl.load(open(vocab_file_name, "rb"))
     class_to_idx = pkl.load(open(class_to_idx_file_name, "rb"))
