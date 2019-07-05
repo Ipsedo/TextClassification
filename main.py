@@ -7,7 +7,7 @@ import torch.nn as nn
 from math import ceil
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-from torchnet.meter import AUCMeter
+#from torchnet.meter import AUCMeter
 import gc
 import numpy as np
 
@@ -277,7 +277,7 @@ def wiki():
 
 
 def visu_dbpedia():
-    dbpedia = open("./datasets/dbpedia_pp_simplified-2.txt").readlines()
+    dbpedia = open("../../data/dbpedia_pp_simplified-1.txt").readlines()
 
     x = []
     y = []
@@ -312,7 +312,7 @@ def visu_dbpedia():
 
 
 def dbpedia():
-    dbpedia = open("./datasets/dbpedia_pp_simplified-2.txt").readlines()
+    dbpedia = open("../../data/dbpedia_pp_filtered-2.txt").readlines()
 
     x = []
     y = []
@@ -332,7 +332,8 @@ def dbpedia():
     tmp = list(zip(x, y))
     shuffle(tmp)
     x, y = zip(*tmp)
-
+    
+    print("Nb class : %d" % len(class_to_idx))
     print("Nb abstracts : %d" % len(x))
 
     x = process_doc(x)
@@ -369,7 +370,7 @@ def dbpedia():
     batch_size = 16
     nb_batch = ceil(x_train.size(0) / batch_size)
 
-    nb_epoch = 10
+    nb_epoch = 20
 
     m = ConvModelDBPedia_V1(len(vocab), len(class_to_idx), vocab[__padding__])
     loss_fn = nn.NLLLoss()
@@ -377,7 +378,7 @@ def dbpedia():
     m.cuda()
     loss_fn.cuda()
 
-    optim = th.optim.SGD(m.parameters(), lr=1e-4)
+    optim = th.optim.Adam(m.parameters(), lr=2e-4)
 
     losses = []
     acc = []
