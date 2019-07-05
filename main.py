@@ -379,7 +379,7 @@ def dbpedia():
     m.cuda()
     loss_fn.cuda()
 
-    optim = th.optim.Adam(m.parameters(), lr=2e-4)
+    optim = th.optim.Adam(m.parameters(), lr=1e-4)
 
     losses = []
     acc = []
@@ -442,7 +442,7 @@ def dbpedia():
     plt.legend()
     plt.show()
 
-    model_file_name = "CNN-V1.model"
+    model_file_name = "CNN-V1_128-184-256.model"
     vocab_pickle_file_name = "vocab.pkl"
     class_to_idx_pickle_file_name = "class_to_idx.pkl"
 
