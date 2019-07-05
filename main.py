@@ -8,8 +8,7 @@ from math import ceil
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from torchnet.meter import AUCMeter
-import gc, sys
-from pympler.tracker import SummaryTracker
+import gc
 
 
 nltk.download('reuters')
@@ -277,14 +276,13 @@ def wiki():
 
 
 def dbpedia():
-    tracker = SummaryTracker()
-
-    dbpedia = open("./datasets/dbpedia_pp.txt").readlines()
+    dbpedia = open("./datasets/dbpedia_pp_simplified.txt").readlines()
 
     x = []
     y = []
 
     class_to_idx = {}
+    class_count = {}
 
     for l in tqdm(dbpedia):
         lbl = l.split("|||")[0]
@@ -292,9 +290,13 @@ def dbpedia():
 
         if lbl not in class_to_idx:
             class_to_idx[lbl] = len(class_to_idx)
+        class_count[lbl] = 1 + class_count[lbl] if lbl in class_count else 1
 
         y.append(class_to_idx[lbl])
         x.append(txt)
+
+    print(len(class_to_idx))
+    print(class_count)
 
     tmp = list(zip(x, y))
     shuffle(tmp)
@@ -332,10 +334,6 @@ def dbpedia():
 
     print(x_train.size(), y_train.size())
     print(x_dev.size(), y_dev.size())
-
-    tracker.print_diff()
-    a = input("A : ")
-    exit()
 
     batch_size = 16
     nb_batch = ceil(x_train.size(0) / batch_size)
