@@ -1,5 +1,6 @@
 from tqdm import tqdm
 import re
+from owlready2 import get_ontology
 
 
 def filter_things(titles, labels):
@@ -43,14 +44,33 @@ def write_dataset(data_set, file_name):
         out_file.write(line + "\n")
 
 
-def main(type_file, abstract_file, out_file):
+def pass_to_parent_class(title_to_type, ontology):
+    return {t: str(ontology[l].is_a[0]).split(".")[-1] for t, l in title_to_type.items() if ontology[l] is not None}
+
+
+def main(type_file, abstract_file, out_file, ontology_file_name=None):
+    """
+
+    :param type_file:
+    :param abstract_file:
+    :param out_file:
+    :param ontology_file_name: if None, ne prend pas les classe mère de l'ontology
+    :return:
+    """
     instances_types = open(type_file).readlines()[1:]
-    labels = [l.split(" ")[2].replace("<", "").replace(">", "").split("/")[-1] for l in instances_types]
-    titles = [l.split(" ")[0].replace("<", "").replace(">", "").split("/")[-1] for l in instances_types]
+    instances_types = [l for l in instances_types if "ontology" in l]
+
+    labels = [re.findall(r"[A-Za-z]+", l.split(" ")[2].replace("<", "").replace(">", ""))[-1] for l in instances_types]
+    titles = [re.findall(r"[A-Za-z]+", l.split(" ")[0].replace("<", "").replace(">", ""))[-1] for l in instances_types]
 
     titles, labels = filter_things(titles, labels)
 
     title_to_type = create_types_dict(titles, labels)
+
+    onto = get_ontology(ontology_file_name)
+    onto.load()
+
+    title_to_type = pass_to_parent_class(title_to_type, onto)
 
     print(len(title_to_type))
 
@@ -62,4 +82,7 @@ def main(type_file, abstract_file, out_file):
 
 
 if __name__ == "__main__":
-    main("./datasets/instance_types_en.ttl", "./datasets/long_abstracts_en.ttl", "./datasets/dbpedia_pp.txt")
+    main("./datasets/instance_types_en.ttl",
+         "./datasets/long_abstracts_en.ttl",
+         "./datasets/dbpedia_pp_simplified.txt",
+         "./datasets/dbpedia_2016-10.owl")
