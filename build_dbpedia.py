@@ -45,7 +45,16 @@ def write_dataset(data_set, file_name):
 
 
 def pass_to_parent_class(title_to_type, ontology):
-    return {t: str(ontology[l].is_a[0]).split(".")[-1] for t, l in title_to_type.items() if ontology[l] is not None}
+    #return {t: str(ontology[l].is_a[0]).split(".")[-1] for t, l in title_to_type.items() if ontology[l] is not None}
+    res = {}
+
+    for t, l in title_to_type.items():
+        if ontology[l] is not None:
+            parent_type = str(ontology[l].is_a[0]).split(".")[-1]
+            parent_type = l if parent_type == "Thing" else parent_type
+            res[t] = parent_type
+
+    return res
 
 
 def main(type_file, abstract_file, out_file, ontology_file_name=None):
@@ -84,5 +93,5 @@ def main(type_file, abstract_file, out_file, ontology_file_name=None):
 if __name__ == "__main__":
     main("./datasets/instance_types_en.ttl",
          "./datasets/long_abstracts_en.ttl",
-         "./datasets/dbpedia_pp_simplified.txt",
+         "./datasets/dbpedia_pp_simplified-2.txt",
          "./datasets/dbpedia_2016-10.owl")
