@@ -1,5 +1,6 @@
 instance_types_en.ttl
 long_abstracts_en.ttl
-dbpedia_pp.txt
+dbpedia_*.txt
+dbpedia_*.owl
 .idea/
 __pycache__/
