@@ -69,7 +69,9 @@ class ConvModelDBPedia_V1(nn.Module):
         )
 
         self.seq_lin = nn.Sequential(
-            nn.Linear(256 * 7, nb_class),
+            nn.Linear(256 * 7, 256 * 10),
+            nn.BatchNorm1d(256 * 10),
+            nn.Linear(256 * 10, nb_class),
             nn.Softmax(dim=-1)
         )
 
