@@ -346,9 +346,12 @@ def dbpedia():
 
     class_to_idx = {}
 
+    new_y = []
     for lbl in y:
         if idx_to_class[lbl] not in class_to_idx:
             class_to_idx[idx_to_class[lbl]] = len(class_to_idx)
+        new_y.append(class_to_idx[idx_to_class[lbl]])
+    y = new_y
     print("Nb class : %d" % len(class_to_idx))
     print("Nb abstracts : %d" % len(x))
 
