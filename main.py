@@ -7,7 +7,7 @@ import torch.nn as nn
 from math import ceil
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-#from torchnet.meter import AUCMeter
+from torchnet.meter import AUCMeter, ConfusionMeter
 import gc
 import numpy as np
 import pickle as pkl
@@ -313,7 +313,7 @@ def visu_dbpedia():
 
 
 def dbpedia():
-    dbpedia = open("../../data/dbpedia_pp_filtered-2.txt").readlines()
+    dbpedia = open("../../data/dbpedia_pp_filtered-2.txt").readlines()[:1000]
 
     x = []
     y = []
@@ -384,6 +384,8 @@ def dbpedia():
     losses = []
     acc = []
 
+    conf_meter = ConfusionMeter(len(class_to_idx))
+
     for e in range(nb_epoch):
 
         m.train()
@@ -424,16 +426,25 @@ def dbpedia():
                 i_max = (i + 1) * batch_size
                 i_max = i_max if i_max < x_dev.size(0) else x_dev.size(0)
 
-                x_b, y_b = x_dev[i_min:i_max].cuda(), y_dev[i_min:i_max].cuda()
+                x_b, y_b = x_dev[i_min:i_max].cuda(), y_dev[i_min:i_max].cuda().to(th.long)
 
                 out = m(x_b)
 
-                correct_answer += (out.argmax(dim=-1) == y_b.to(th.long)).sum().item()
+                conf_meter.add(out, y_b)
+
+                correct_answer += (out.argmax(dim=-1) == y_b).sum().item()
 
         correct_answer /= x_dev.size(0)
 
         acc.append(correct_answer)
         print("Accuracy = %f" % correct_answer)
+
+        conf_mat = conf_meter.value()
+        plt.matshow(conf_mat)
+        plt.colorbar()
+        plt.title("Confusion Matrix - Epoch %d" % e)
+        plt.legend()
+        plt.show()
 
     plt.plot(losses, "r", label="loss value")
     plt.plot(acc, "b", label="accuracy value")
@@ -453,5 +464,5 @@ def dbpedia():
 if __name__ == "__main__":
     #reuters()
     #wiki()
-    #dbpedia()
-    visu_dbpedia()
+    dbpedia()
+    #visu_dbpedia()
