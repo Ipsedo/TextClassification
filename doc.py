@@ -134,3 +134,16 @@ def filter_word_occ(sentence_list, word_count, limit=10):
     return [[w for w in s if word_count[w] > limit] for s in tqdm(sentence_list)]
 
 
+def filter_class(sentences, labels, label_count, limit_up=10000, limit_down=1000):
+    sentence_res = []
+    labels_res = []
+
+    for s, l in zip(sentences, labels):
+        if limit_down <= label_count[l] <= limit_up:
+            sentence_res.append(s)
+            labels_res.append(l)
+
+    return sentence_res, labels_res
+
+
+

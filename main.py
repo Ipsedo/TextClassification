@@ -313,12 +313,13 @@ def visu_dbpedia():
 
 
 def dbpedia():
-    dbpedia = open("../../data/dbpedia_pp_filtered-2.txt").readlines()
+    dbpedia = open("../../data/dbpedia_pp.txt").readlines()
 
     x = []
     y = []
 
     class_to_idx = {}
+    class_count = {}
 
     for l in tqdm(dbpedia):
         lbl = l.split("|||")[0]
@@ -330,10 +331,24 @@ def dbpedia():
         y.append(class_to_idx[lbl])
         x.append(txt)
 
+        class_count[class_to_idx[lbl]] = 1 + class_count[class_to_idx[lbl]] if class_to_idx[lbl] in class_count else 1
+
     tmp = list(zip(x, y))
     shuffle(tmp)
     x, y = zip(*tmp)
     
+    print("Nb class : %d" % len(class_to_idx))
+    print("Nb abstracts : %d" % len(x))
+
+    x, y = filter_class(x, y, class_count)
+
+    idx_to_class = {idx: cl for cl, idx in class_to_idx.items()}
+
+    class_to_idx = {}
+
+    for lbl in y:
+        if idx_to_class[lbl] not in class_to_idx:
+            class_to_idx[idx_to_class[lbl]] = len(class_to_idx)
     print("Nb class : %d" % len(class_to_idx))
     print("Nb abstracts : %d" % len(x))
 
