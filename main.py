@@ -313,7 +313,7 @@ def visu_dbpedia():
 
 
 def dbpedia():
-    dbpedia = open("../../data/dbpedia_pp_filtered-2.txt").readlines()[:1000]
+    dbpedia = open("../../data/dbpedia_pp_filtered-2.txt").readlines()
 
     x = []
     y = []
