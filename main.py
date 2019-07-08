@@ -313,7 +313,7 @@ def visu_dbpedia():
 
 
 def dbpedia():
-    dbpedia = open("../../data/dbpedia_pp_filtered-2.txt").readlines()
+    dbpedia = open("../../data/dbpedia_pp_filtered-1.txt").readlines()
 
     x = []
     y = []
@@ -384,7 +384,7 @@ def dbpedia():
     losses = []
     acc = []
 
-    conf_meter = ConfusionMeter(len(class_to_idx))
+    conf_meter = ConfusionMeter(len(class_to_idx), normalized=True)
 
     for e in range(nb_epoch):
 
@@ -440,12 +440,15 @@ def dbpedia():
         print("Accuracy = %f" % correct_answer)
 
         conf_mat = conf_meter.value()
+        
+        plt.figure()
         plt.matshow(conf_mat)
         plt.colorbar()
         plt.title("Confusion Matrix - Epoch %d" % e)
         plt.legend()
         plt.savefig("./results/conf_mat/conf_at_epoch-%d.png" % e)
 
+    plt.figure()
     plt.plot(losses, "r", label="loss value")
     plt.plot(acc, "b", label="accuracy value")
     plt.xlabel("Epoch")

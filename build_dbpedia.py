@@ -76,10 +76,10 @@ def main(type_file, abstract_file, out_file, ontology_file_name=None):
 
     title_to_type = create_types_dict(titles, labels)
 
-    """onto = get_ontology(ontology_file_name)
+    onto = get_ontology(ontology_file_name)
     onto.load()
 
-    title_to_type = pass_to_parent_class(title_to_type, onto)"""
+    title_to_type = pass_to_parent_class(title_to_type, onto)
 
     print(len(title_to_type))
 
@@ -93,5 +93,5 @@ def main(type_file, abstract_file, out_file, ontology_file_name=None):
 if __name__ == "__main__":
     main("./datasets/instance_types_en.ttl",
          "./datasets/long_abstracts_en.ttl",
-         "./datasets/dbpedia_pp_simplified-3.txt",
+         "./datasets/dbpedia_pp_filtered-1.txt",
          "./datasets/dbpedia_2016-10.owl")
