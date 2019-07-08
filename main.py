@@ -445,6 +445,7 @@ def dbpedia():
         plt.title("Confusion Matrix - Epoch %d" % e)
         plt.legend()
         plt.show()
+        plt.savefig("conf_at_epoch-%d.png" % e)
 
     plt.plot(losses, "r", label="loss value")
     plt.plot(acc, "b", label="accuracy value")
@@ -452,6 +453,7 @@ def dbpedia():
     plt.title("DBPedia (onthology classification)")
     plt.legend()
     plt.show()
+    plt.savefig("accuracy.png")
 
     model_file_name = "CNN-V1_128-184-256.model"
     vocab_pickle_file_name = "vocab.pkl"
