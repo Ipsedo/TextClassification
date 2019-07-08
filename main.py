@@ -313,7 +313,7 @@ def visu_dbpedia():
 
 
 def dbpedia():
-    dbpedia = open("../../data/dbpedia_pp_filtered-1.txt").readlines()
+    dbpedia = open("../../data/dbpedia_pp_filtered-2.txt").readlines()
 
     x = []
     y = []
@@ -379,7 +379,7 @@ def dbpedia():
     m.cuda()
     loss_fn.cuda()
 
-    optim = th.optim.Adam(m.parameters(), lr=1e-4)
+    optim = th.optim.Adam(m.parameters(), lr=1e-5)
 
     losses = []
     acc = []
