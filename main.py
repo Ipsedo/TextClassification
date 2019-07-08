@@ -444,15 +444,13 @@ def dbpedia():
         plt.colorbar()
         plt.title("Confusion Matrix - Epoch %d" % e)
         plt.legend()
-        plt.show()
-        plt.savefig("conf_at_epoch-%d.png" % e)
+        plt.savefig("./results/conf_mat/conf_at_epoch-%d.png" % e)
 
     plt.plot(losses, "r", label="loss value")
     plt.plot(acc, "b", label="accuracy value")
     plt.xlabel("Epoch")
     plt.title("DBPedia (onthology classification)")
     plt.legend()
-    plt.show()
     plt.savefig("accuracy.png")
 
     model_file_name = "CNN-V1_128-184-256.model"
