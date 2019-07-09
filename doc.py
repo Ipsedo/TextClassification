@@ -134,7 +134,7 @@ def filter_word_occ(sentence_list, word_count, limit=10):
     return [[w for w in s if word_count[w] > limit] for s in tqdm(sentence_list)]
 
 
-def filter_class(sentences, labels, label_count, limit_up=10000, limit_down=1000):
+def filter_class(sentences, labels, label_count, limit_up=10000, limit_down=0):
     sentence_res = []
     labels_res = []
 
@@ -145,5 +145,19 @@ def filter_class(sentences, labels, label_count, limit_up=10000, limit_down=1000
 
     return sentence_res, labels_res
 
+
+def limit_class_occurence(sentence_list, label_list, limit=10000):
+    class_count = {}
+    
+    new_sentence_list = []
+    new_label_list = []
+    for s, l in zip(sentence_list, label_list):
+        class_count[l] = 1 + class_count[l] if l in class_count else 1
+        
+        if class_count[l] <= limit:
+            new_sentence_list.append(s)
+            new_label_list.append(l)
+    
+    return new_sentence_list, new_label_list
 
 
