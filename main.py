@@ -1,12 +1,11 @@
 from doc import *
 from doc import __padding__
-from models import ConvModelReuters, ConvModelWiki, ConvModelDBPedia_V1, ConvModelDBPedia_V2
+from models import ConvModelDBPedia_V1, ConvModelDBPedia_V2
 import torch.nn as nn
 from math import ceil, floor
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from torchnet.meter import ConfusionMeter
-import gc
 import numpy as np
 import pickle as pkl
 
@@ -47,7 +46,7 @@ def visu_dbpedia():
 
 
 def dbpedia():
-    dbpedia = open("../../data/dbpedia_pp.txt").readlines()
+    dbpedia = open("./datasets/dbpedia_pp_filtered.txt").readlines()
 
     x = []
     y = []
@@ -87,7 +86,7 @@ def dbpedia():
         new_y.append(class_to_idx[idx_to_class[lbl]])
     y = new_y"""
     
-    x, y = limit_class_occurence(x, y)
+    x, y = limit_class_occurence(x, y, limit=3000)
     
     print("Nb class : %d" % len(class_to_idx))
     print("Nb abstracts : %d" % len(x))
