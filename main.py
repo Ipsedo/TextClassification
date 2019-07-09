@@ -4,7 +4,7 @@ from doc import *
 from doc import __padding__
 from models import ConvModelReuters, ConvModelWiki, ConvModelDBPedia_V1, ConvModelDBPedia_V2
 import torch.nn as nn
-from math import ceil
+from math import ceil, floor
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from torchnet.meter import AUCMeter, ConfusionMeter
@@ -387,7 +387,7 @@ def dbpedia():
     print(x_dev.size(), y_dev.size())
 
     batch_size = 16
-    nb_batch = ceil(x_train.size(0) / batch_size)
+    nb_batch = floor(x_train.size(0) / batch_size)
 
     nb_epoch = 20
 
