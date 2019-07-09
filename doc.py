@@ -151,7 +151,7 @@ def limit_class_occurence(sentence_list, label_list, limit=10000):
     
     new_sentence_list = []
     new_label_list = []
-    for s, l in zip(sentence_list, label_list):
+    for s, l in tqdm(zip(sentence_list, label_list)):
         class_count[l] = 1 + class_count[l] if l in class_count else 1
         
         if class_count[l] <= limit:
