@@ -5,6 +5,45 @@ from doc import __padding__, process_doc, pass_to_idx_and_padd
 import torch as th
 from tqdm import tqdm
 from statistics import mean
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+
+
+def visu_dbpedia():
+    dbpedia = open("../../data/dbpedia_pp_simplified-1.txt").readlines()
+
+    x = []
+    y = []
+
+    class_to_idx = {}
+    class_count = {}
+
+    for l in tqdm(dbpedia):
+        lbl = l.split("|||")[0]
+        txt = l.split("|||")[1]
+
+        if lbl not in class_to_idx:
+            class_to_idx[lbl] = len(class_to_idx)
+        class_count[lbl] = 1 + class_count[lbl] if lbl in class_count else 1
+
+        y.append(class_to_idx[lbl])
+        x.append(txt)
+
+    print(len(class_to_idx))
+    print(class_count)
+
+    count = np.asarray([c for _, c in class_count.items()])
+    type_name = np.asarray([t for t, _ in class_count.items()])
+
+    mask = count > 1000
+    count = count[mask]
+    type_name = type_name[mask]
+
+    plt.bar(type_name, count)
+    plt.xticks(rotation="vertical")
+    plt.show()
 
 
 if __name__ == "__main__":
@@ -47,3 +86,19 @@ if __name__ == "__main__":
 
     print(sorted(class_count.items(), key=lambda t: t[1], reverse=True))
     print("Moyenne nombre d'occurrence par classe : %f" % mean(map(lambda t: t[1], class_count.items())))
+
+    plt.bar(list(range(len(class_count))),
+            np.log10(list(map(lambda t: t[1], sorted(class_count.items(), key=lambda t: t[1], reverse=True)))))
+    plt.ylabel("log10 - Effectif")
+    plt.xlabel("Class ID")
+    plt.title("Effectifs classes (log10)")
+    plt.legend()
+    plt.show()
+
+    plt.bar(list(range(len(class_count))),
+            list(map(lambda t: t[1], sorted(class_count.items(), key=lambda t: t[1], reverse=True))))
+    plt.ylabel("Effectif")
+    plt.xlabel("Class ID")
+    plt.title("Effectifs classes")
+    plt.legend()
+    plt.show()
