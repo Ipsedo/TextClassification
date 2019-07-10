@@ -1,6 +1,5 @@
 from tqdm import tqdm
 import re
-from owlready2 import get_ontology
 
 
 def filter_things(titles, labels):
@@ -57,13 +56,12 @@ def pass_to_parent_class(title_to_type, ontology):
     return res
 
 
-def main(type_file, abstract_file, out_file, ontology_file_name=None):
+def main(type_file, abstract_file, out_file):
     """
 
     :param type_file:
     :param abstract_file:
     :param out_file:
-    :param ontology_file_name: if None, ne prend pas les classe mère de l'ontology
     :return:
     """
     instances_types = open(type_file).readlines()[1:]
@@ -76,13 +74,6 @@ def main(type_file, abstract_file, out_file, ontology_file_name=None):
 
     title_to_type = create_types_dict(titles, labels)
 
-    onto = get_ontology(ontology_file_name)
-    onto.load()
-
-    title_to_type = pass_to_parent_class(title_to_type, onto)
-
-    print(len(title_to_type))
-
     long_abstracts = open(abstract_file).readlines()[1:]
 
     dataset = create_dataset(title_to_type, long_abstracts)
@@ -93,5 +84,4 @@ def main(type_file, abstract_file, out_file, ontology_file_name=None):
 if __name__ == "__main__":
     main("./datasets/instance_types_en.ttl",
          "./datasets/long_abstracts_en.ttl",
-         "./datasets/dbpedia_pp_filtered-1.txt",
-         "./datasets/dbpedia_2016-10.owl")
+         "./datasets/dbpedia_pp_filtered.txt")
