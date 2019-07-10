@@ -73,7 +73,7 @@ def dbpedia():
     print("Nb class : %d" % len(class_to_idx))
     print("Nb abstracts : %d" % len(x))
 
-    x, y = filter_class(x, y, class_count, limit_up=5000, limit_down=100)
+    x, y = filter_limit_class(x, y, class_count, limit_up=5000, limit_down=500)
 
     idx_to_class = {idx: cl for cl, idx in class_to_idx.items()}
 
