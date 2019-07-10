@@ -57,7 +57,7 @@ def dbpedia():
     print("Nb abstracts : %d" % len(x))
 
     weights = compute_class_weights(y)
-    weights = th.tensor(list(map(lambda t: t[1], weights)))
+    weights = th.tensor(list(map(lambda t: t[1], weights.items())))
 
     x = process_doc(x)
 
