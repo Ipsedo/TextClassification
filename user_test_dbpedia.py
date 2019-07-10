@@ -9,7 +9,7 @@ def test():
     vocab_file_name = "./saved/vocab.pkl"
     class_to_idx_file_name = "./saved/class_to_idx.pkl"
 
-    doc_to_test = "/home/samuel/Documents/Stage_SG/xlnet.txt"
+    test_doc = "/home/samuel/Documents/Stage_SG/xlnet.txt"
 
     vocab = pkl.load(open(vocab_file_name, "rb"))
     class_to_idx = pkl.load(open(class_to_idx_file_name, "rb"))
@@ -22,7 +22,7 @@ def test():
 
     model.eval()
 
-    doc = open(doc_to_test, "r").read()
+    doc = open(test_doc, "r").read()
     doc = process_doc([doc])
     doc = pass_to_idx_and_padd(doc, vocab, max_len)
 
