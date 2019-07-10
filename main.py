@@ -56,7 +56,7 @@ def dbpedia():
     print("Nb class : %d" % len(class_to_idx))
     print("Nb abstracts : %d" % len(x))
 
-    weights = compute_class_weights(y)
+    weights = compute_class_weights(y, eps=1e-4)
     weights = th.tensor(list(map(lambda t: t[1], weights.items())))
 
     x = process_doc(x)
@@ -101,7 +101,7 @@ def dbpedia():
     m.cuda()
     loss_fn.cuda()
 
-    optim = th.optim.Adam(m.parameters(), lr=1e-4)
+    optim = th.optim.Adam(m.parameters(), lr=2e-4)
 
     losses = []
     acc = []
