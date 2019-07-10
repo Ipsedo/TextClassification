@@ -46,7 +46,7 @@ def visu_dbpedia():
 
 
 def dbpedia():
-    dbpedia = open("./datasets/dbpedia_pp_filtered.txt").readlines()
+    dbpedia = open("../../data/dbpedia_pp_filtered.txt").readlines()
 
     x = []
     y = []
@@ -73,9 +73,9 @@ def dbpedia():
     print("Nb class : %d" % len(class_to_idx))
     print("Nb abstracts : %d" % len(x))
 
-    x, y = filter_class(x, y, class_count)
+    x, y = filter_class(x, y, class_count, limit_up=5000, limit_down=100)
 
-    """idx_to_class = {idx: cl for cl, idx in class_to_idx.items()}
+    idx_to_class = {idx: cl for cl, idx in class_to_idx.items()}
 
     class_to_idx = {}
 
@@ -84,9 +84,9 @@ def dbpedia():
         if idx_to_class[lbl] not in class_to_idx:
             class_to_idx[idx_to_class[lbl]] = len(class_to_idx)
         new_y.append(class_to_idx[idx_to_class[lbl]])
-    y = new_y"""
+    y = new_y
     
-    x, y = limit_class_occurence(x, y, limit=3000)
+    #x, y = limit_class_occurence(x, y, limit=10000)
     
     print("Nb class : %d" % len(class_to_idx))
     print("Nb abstracts : %d" % len(x))
@@ -133,7 +133,7 @@ def dbpedia():
     m.cuda()
     loss_fn.cuda()
 
-    optim = th.optim.Adam(m.parameters(), lr=1e-5)
+    optim = th.optim.Adam(m.parameters(), lr=1e-4)
 
     losses = []
     acc = []
