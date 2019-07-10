@@ -178,3 +178,22 @@ def filter_limit_class(sentence_list, label_list, class_count, limit_up=5000, li
     return new_sentence, new_labels
 
 
+def compute_class_weights(label_list, eps=1e-6):
+    counter = {}
+
+    for l in label_list:
+        counter[l] = 1 + counter[l] if l in counter else 1
+
+    weights = {}
+
+    max_occurence = max(map(lambda t: t[1], counter.items()))
+
+    for l, c in counter.items():
+        weights[l] = 1 - c / max_occurence + eps
+
+    return weights
+
+
+
+
+
