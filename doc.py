@@ -161,3 +161,20 @@ def limit_class_occurence(sentence_list, label_list, limit=10000):
     return new_sentence_list, new_label_list
 
 
+def filter_limit_class(sentence_list, label_list, class_count, limit_up=5000, limit_down=500):
+    new_sentence = []
+    new_labels = []
+
+    class_counter = {}
+
+    for s, l in tqdm(zip(sentence_list, label_list)):
+
+        class_counter[l] = 1 + class_counter[l] if l in class_counter else 1
+
+        if class_count[l] >= limit_down and class_counter[l] <= limit_up:
+            new_sentence.append(s)
+            new_labels.append(l)
+
+    return new_sentence, new_labels
+
+
