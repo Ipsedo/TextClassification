@@ -1,7 +1,7 @@
 import torch as th
 from models import ConvModelDBPedia_V1
 import pickle as pkl
-from doc import __padding__, process_doc, pass_to_idx_and_padd
+from preprocessing import __padding__, process_doc, pass_to_idx_and_padd
 
 
 def test():

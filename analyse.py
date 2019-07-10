@@ -1,7 +1,7 @@
 from os.path import isdir, exists, join
 import pickle as pkl
 from models import ConvModelDBPedia_V1
-from doc import __padding__, process_doc, pass_to_idx_and_padd
+from preprocessing import __padding__, process_doc, pass_to_idx_and_padd
 import torch as th
 from tqdm import tqdm
 from statistics import mean

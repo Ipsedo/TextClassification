@@ -1,5 +1,5 @@
-from doc import *
-from doc import __padding__
+from preprocessing import *
+from preprocessing import __padding__
 from models import ConvModelDBPedia_V1, ConvModelDBPedia_V2
 import torch.nn as nn
 from math import ceil, floor
