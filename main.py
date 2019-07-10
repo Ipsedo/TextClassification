@@ -10,41 +10,6 @@ import numpy as np
 import pickle as pkl
 
 
-def visu_dbpedia():
-    dbpedia = open("../../data/dbpedia_pp_simplified-1.txt").readlines()
-
-    x = []
-    y = []
-
-    class_to_idx = {}
-    class_count = {}
-
-    for l in tqdm(dbpedia):
-        lbl = l.split("|||")[0]
-        txt = l.split("|||")[1]
-
-        if lbl not in class_to_idx:
-            class_to_idx[lbl] = len(class_to_idx)
-        class_count[lbl] = 1 + class_count[lbl] if lbl in class_count else 1
-
-        y.append(class_to_idx[lbl])
-        x.append(txt)
-
-    print(len(class_to_idx))
-    print(class_count)
-
-    count = np.asarray([c for _, c in class_count.items()])
-    type_name = np.asarray([t for t, _ in class_count.items()])
-
-    mask = count > 1000
-    count = count[mask]
-    type_name = type_name[mask]
-
-    plt.bar(type_name, count)
-    plt.xticks(rotation="vertical")
-    plt.show()
-
-
 def dbpedia():
     dbpedia = open("../../data/dbpedia_pp_filtered.txt").readlines()
 
