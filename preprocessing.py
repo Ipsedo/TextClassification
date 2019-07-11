@@ -1,8 +1,13 @@
 import torch as th
 import re
 from nltk.stem import WordNetLemmatizer
+from nltk.corpus import wordnet
 from random import choice, shuffle
 from tqdm import tqdm
+from goslate import Goslate
+from translate import Translator
+from roundtrip import backtranslate
+
 
 __padding__ = "<padding>"
 lemma = WordNetLemmatizer()
@@ -193,3 +198,40 @@ def compute_class_weights(label_list, eps=1e-6):
             weights[l] = eps
 
     return weights
+
+
+def rewrite_sentence(sentence: list):
+    """
+    pourri pour data augmentation
+    :param sentence:
+    :return:
+    """
+    new_sentence = []
+
+    for w in sentence:
+        possible_senses = wordnet.synsets(w)
+
+        if possible_senses:
+            syn = possible_senses[0].lemmas()
+
+            new_words = choice(syn).name().split("_")
+
+            new_sentence += new_words
+        else:
+            new_sentence.append(w)
+
+    return new_sentence
+
+
+def back_translate(sentence: str) -> list:
+    #gs = Goslate()
+    langs = ["fr", "de", "ar", "it", "zh", "ja", "ru", "es", "pt", "vi"]
+    main_lang = "en"
+
+    new_sentence = [sentence]
+
+    for l in langs:
+        s = backtranslate(sentence, l, main_lang)
+        new_sentence.append(s)
+
+    return new_sentence
