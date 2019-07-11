@@ -187,9 +187,10 @@ def compute_class_weights(label_list, eps=1e-6):
     weights = {}
 
     max_occurence = max(map(lambda t: t[1], counter.items()))
+    total_example = len(label_list)
 
     for l, c in counter.items():
-        weights[l] = 1 - c / max_occurence
+        weights[l] = 100.0 / c
         if weights[l] == 0:
             weights[l] = eps
 

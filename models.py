@@ -86,6 +86,40 @@ class ConvModelDBPedia_V1(nn.Module):
 
         return out
 
+    
+class ConvModelDBPedia_V1_2(nn.Module):
+    def __init__(self, vocab_size, nb_class, padding_idx):
+        super().__init__()
+
+        self.emb = nn.Embedding(vocab_size, 100, padding_idx=padding_idx)
+
+        self.seq_conv = nn.Sequential(
+            nn.Conv1d(100, 140, kernel_size=3),
+            nn.MaxPool1d(2, 2),
+            nn.ReLU(),
+            nn.Conv1d(140, 180, kernel_size=5, stride=2),
+            nn.MaxPool1d(8, 8),
+            nn.ReLU()
+        )
+
+        self.seq_lin = nn.Sequential(
+            nn.Linear(180 * 15, 2048),
+            nn.BatchNorm1d(2048),
+            nn.Linear(2048, nb_class),
+            nn.Softmax(dim=-1)
+        )
+
+    def forward(self, x):
+        out = self.emb(x)
+        out = out.permute(0, 2, 1)
+
+        out = self.seq_conv(out)
+        out = out.flatten(1, -1)
+
+        out = self.seq_lin(out)
+
+        return out
+
 
 class ConvModelDBPedia_V2(nn.Module):
     def __init__(self, vocab_size, nb_class, padding_idx):

@@ -1,6 +1,6 @@
 from preprocessing import *
 from preprocessing import __padding__
-from models import ConvModelDBPedia_V1, ConvModelDBPedia_V2
+from models import ConvModelDBPedia_V1, ConvModelDBPedia_V2, ConvModelDBPedia_V1_2
 import torch.nn as nn
 from math import ceil, floor
 from tqdm import tqdm
@@ -58,6 +58,8 @@ def dbpedia():
 
     weights = compute_class_weights(y, eps=1e-4)
     weights = th.tensor(list(map(lambda t: t[1], weights.items())))
+    
+    print(weights)
 
     x = process_doc(x)
 
@@ -93,15 +95,15 @@ def dbpedia():
     batch_size = 16
     nb_batch = floor(x_train.size(0) / batch_size)
 
-    nb_epoch = 20
+    nb_epoch = 50
 
-    m = ConvModelDBPedia_V1(len(vocab), len(class_to_idx), vocab[__padding__])
+    m = ConvModelDBPedia_V1_2(len(vocab), len(class_to_idx), vocab[__padding__])
     loss_fn = nn.NLLLoss(weight=weights)
 
     m.cuda()
     loss_fn.cuda()
 
-    optim = th.optim.Adam(m.parameters(), lr=2e-4)
+    optim = th.optim.Adam(m.parameters(), lr=1e-4)
 
     losses = []
     acc = []
