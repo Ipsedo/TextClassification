@@ -37,7 +37,7 @@ def process_doc(sentence_list: list) -> list:
     return res
 
 
-def duplicate_class(x_list: list, y_list: list):
+def duplicate_class(x_list: list, y_list: list, max_per_class=300):
     classes = {}
     for c in y_list:
         classes[c] = classes[c] + 1 if c in classes else 1
@@ -50,11 +50,9 @@ def duplicate_class(x_list: list, y_list: list):
     x_res = x_list.copy()
     y_res = y_list.copy()
 
-    m = max(map(lambda t: t[1], classes.items()))
-
     for y, c in classes.items():
-        to_add = m - c
-        #to_add = min(to_add, 300)
+        to_add = max_per_class - c
+        to_add = max(0, to_add)
 
         for _ in range(to_add):
             x_res.append(choice(per_class_doc[y]))
@@ -194,8 +192,3 @@ def compute_class_weights(label_list, eps=1e-6):
             weights[l] = eps
 
     return weights
-
-
-
-
-
