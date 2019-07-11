@@ -56,11 +56,6 @@ def dbpedia():
     print("Nb class : %d" % len(class_to_idx))
     print("Nb abstracts : %d" % len(x))
 
-    weights = compute_class_weights(y, eps=1e-4)
-    weights = th.tensor(list(map(lambda t: t[1], weights.items())))
-    
-    print(weights)
-
     x = process_doc(x)
 
     word_count = count_world(x)
@@ -75,6 +70,12 @@ def dbpedia():
     nb_train = int(len(x) * ratio)
     x_train, y_train = x[:nb_train], y[:nb_train]
     x_dev, y_dev = x[nb_train:], y[nb_train:]
+    
+    x_train, y_train = duplicate_class(x_train, y_train)
+    
+    weights = compute_class_weights(y_train, eps=1e-4)
+    weights = th.tensor(list(map(lambda t: t[1], weights.items())))
+    print(weights)
 
     y_train = th.tensor(y_train).to(th.float)
     y_dev = th.tensor(y_dev).to(th.float)
@@ -97,7 +98,7 @@ def dbpedia():
 
     nb_epoch = 50
 
-    m = ConvModelDBPedia_V1_2(len(vocab), len(class_to_idx), vocab[__padding__])
+    m = ConvModelDBPedia_V1(len(vocab), len(class_to_idx), vocab[__padding__])
     loss_fn = nn.NLLLoss(weight=weights)
 
     m.cuda()
