@@ -197,38 +197,142 @@ def compute_class_weights(label_list, eps=1e-6):
     return weights
 
 
-def rewrite_sentence(sentence: list):
-    """
-    pourri pour data augmentation
-    :param sentence:
-    :return:
-    """
-    new_sentence = []
+def rewrite_sentence(sentence: list, ratio=0.5):
+    word_to_change = int(len(sentence) * ratio)
 
-    for w in sentence:
-        possible_senses = wordnet.synsets(w)
+    for _ in range(word_to_change):
+        i = choice(range(len(sentence)))
+
+        possible_senses = wordnet.synsets(sentence[i])
 
         if possible_senses:
             syn = possible_senses[0].lemmas()
 
             new_words = choice(syn).name().split("_")
+            del sentence[i]
+            sentence[i:i] = new_words
 
-            new_sentence += new_words
-        else:
-            new_sentence.append(w)
+    return sentence
 
-    return new_sentence
+
+def rewrite_corpus(sentence_list, label_list, limit_augmentation=800, to_add=5):
+    counter = {}
+
+    for l in label_list:
+        counter[l] = 1 + counter[l] if l in counter else 1
+
+    new_sentence_list = []
+    new_label_list = []
+
+    for s, l in tqdm(zip(sentence_list, label_list)):
+
+        if counter[l] < limit_augmentation:
+            for _ in range(to_add):
+                rewrited_sentence = rewrite_sentence(s)
+
+                new_sentence_list.append(rewrited_sentence)
+                new_label_list.append(l)
+
+        new_sentence_list.append(s)
+        new_label_list.append(l)
+
+    return new_sentence_list, new_label_list
 
 
 def back_translate(sentence: str) -> list:
-    #gs = Goslate()
-    langs = ["fr", "de", "ar", "it", "zh", "ja", "ru", "es", "pt", "vi"]
+    gs = Goslate()
+    langs = ["af", "sq", "ar", "am", "zh", "ja", "ms", "mk", "ht", "vi"]
     main_lang = "en"
 
     new_sentence = [sentence]
 
     for l in langs:
-        s = backtranslate(sentence, l, main_lang)
+        s = gs.translate(gs.translate(sentence, l), main_lang)
         new_sentence.append(s)
 
     return new_sentence
+
+
+def back_translate_corpus(sentence_list, label_list, limit_augmentation=800):
+    counter = {}
+
+    for l in label_list:
+        counter[l] = 1 + counter[l] if l in counter else 1
+
+    new_sentence_list = []
+    new_label_list = []
+
+    for s, l in tqdm(zip(sentence_list, label_list)):
+
+        if counter[l] < limit_augmentation:
+            generated_back_translations = back_translate(s)
+            classes = [l] * len(generated_back_translations)
+
+            new_sentence_list += generated_back_translations
+            new_label_list += classes
+        else:
+            new_sentence_list.append(s)
+            new_label_list.append(l)
+
+    return new_sentence_list, new_label_list
+
+
+if __name__ == "__main__":
+    dbpedia = open("./datasets/dbpedia_pp_filtered.txt").readlines()
+
+    x = []
+    y = []
+
+    class_to_idx = {}
+    class_count = {}
+
+    for l in tqdm(dbpedia):
+        lbl = l.split("|||")[0]
+        txt = l.split("|||")[1]
+
+        if lbl not in class_to_idx:
+            class_to_idx[lbl] = len(class_to_idx)
+
+        y.append(class_to_idx[lbl])
+        x.append(txt)
+
+        class_count[class_to_idx[lbl]] = 1 + class_count[class_to_idx[lbl]] if class_to_idx[lbl] in class_count else 1
+
+    tmp = list(zip(x, y))
+    shuffle(tmp)
+    x, y = zip(*tmp)
+
+    print("Nb class : %d" % len(class_to_idx))
+    print("Nb abstracts : %d" % len(x))
+
+    x, y = filter_limit_class(x, y, class_count, limit_up=1000, limit_down=100)
+
+    idx_to_class = {idx: cl for cl, idx in class_to_idx.items()}
+
+    class_to_idx = {}
+
+    new_y = []
+    for lbl in y:
+        if idx_to_class[lbl] not in class_to_idx:
+            class_to_idx[idx_to_class[lbl]] = len(class_to_idx)
+        new_y.append(class_to_idx[idx_to_class[lbl]])
+    y = new_y
+
+    print("Nb class : %d" % len(class_to_idx))
+    print("Nb abstracts : %d" % len(x))
+
+    print("begin rewriting...")
+
+    x, y = rewrite_corpus(process_doc(x), y)
+
+    print("Nb abstracts : %d" % len(x))
+    exit()
+
+    out_file = "dbpedia_filtered_augmented.txt"
+
+    f = open(out_file, "w")
+
+    for s, l in tqdm(zip(x, y)):
+        f.write(s + "|||" + l + "\n")
+
+    f.close()
