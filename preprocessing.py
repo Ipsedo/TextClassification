@@ -227,7 +227,7 @@ def rewrite_corpus(sentence_list, label_list, limit_augmentation=800):
     to_add_per_data = {}
     for c, count in counter.items():
         to_add = int(limit_augmentation / count)
-        to_add_per_data=[c] = to_add
+        to_add_per_data[c] = to_add
     
 
     for s, l in tqdm(zip(sentence_list, label_list)):
@@ -329,9 +329,14 @@ if __name__ == "__main__":
 
     print("begin rewriting...")
 
-    x, y = rewrite_corpus(process_doc(x), y)
+    x, y = rewrite_corpus(process_doc(x), y, limit_augmentation=3000)
 
     print("Nb abstracts : %d" % len(x))
+
+    class_count = {}
+    for l in y:
+        class_count[l] = 1 + class_count[l] if l in class_count else 1
+    print(sorted(class_count.items(), key=lambda t: t[1]))
     exit()
 
     out_file = "dbpedia_filtered_augmented.txt"
