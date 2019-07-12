@@ -190,7 +190,7 @@ def compute_class_weights(label_list, eps=1e-6):
     total_example = len(label_list)
 
     for l, c in counter.items():
-        weights[l] = 100.0 / c
+        weights[l] = 1000.0 / c
         if weights[l] == 0:
             weights[l] = eps
 
