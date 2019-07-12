@@ -38,7 +38,7 @@ def dbpedia():
     print("Nb class : %d" % len(class_to_idx))
     print("Nb abstracts : %d" % len(x))
 
-    x, y = filter_limit_class(x, y, class_count, limit_up=10000, limit_down=100)
+    x, y = filter_limit_class(x, y, class_count, limit_up=3000, limit_down=300)
 
     idx_to_class = {idx: cl for cl, idx in class_to_idx.items()}
 
@@ -71,12 +71,12 @@ def dbpedia():
     x_train, y_train = x[:nb_train], y[:nb_train]
     x_dev, y_dev = x[nb_train:], y[nb_train:]
     
-    x_train, y_train = rewrite_corpus(x_train, y_train, limit_augmentation=3000)
+    x_train, y_train = rewrite_corpus(x_train, y_train, limit_augmentation=600)
     x_train, y_train = filter_size(x_train, y_train, 500)
     
     weights = compute_class_weights(y_train, eps=1e-4)
     weights = th.tensor(list(map(lambda t: t[1], weights.items())))
-    weights = th.ones(len(weights))
+    #weights = th.ones(len(weights))
     print(weights)
 
     y_train = th.tensor(y_train).to(th.float)
@@ -98,7 +98,7 @@ def dbpedia():
     batch_size = 16
     nb_batch = floor(x_train.size(0) / batch_size)
 
-    nb_epoch = 50
+    nb_epoch = 20
 
     m = ConvModelDBPedia_V1(len(vocab), len(class_to_idx), vocab[__padding__])
     loss_fn = nn.NLLLoss(weight=weights)
@@ -173,7 +173,7 @@ def dbpedia():
         plt.colorbar()
         plt.title("Confusion Matrix - Epoch %d" % e)
         plt.legend()
-        plt.savefig("./results/conf_mat/conf_at_epoch-%d.png" % e)
+        plt.savefig("./results/conf_mat/conf_mat_epoch-%d.png" % e)
 
     plt.figure()
     plt.plot(losses, "r", label="loss value")
