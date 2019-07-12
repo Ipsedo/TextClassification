@@ -38,7 +38,7 @@ def dbpedia():
     print("Nb class : %d" % len(class_to_idx))
     print("Nb abstracts : %d" % len(x))
 
-    x, y = filter_limit_class(x, y, class_count, limit_up=1000, limit_down=100)
+    x, y = filter_limit_class(x, y, class_count, limit_up=10000, limit_down=100)
 
     idx_to_class = {idx: cl for cl, idx in class_to_idx.items()}
 
@@ -71,10 +71,12 @@ def dbpedia():
     x_train, y_train = x[:nb_train], y[:nb_train]
     x_dev, y_dev = x[nb_train:], y[nb_train:]
     
-    x_train, y_train = duplicate_class(x_train, y_train)
+    x_train, y_train = rewrite_corpus(x_train, y_train, limit_augmentation=3000)
+    x_train, y_train = filter_size(x_train, y_train, 500)
     
     weights = compute_class_weights(y_train, eps=1e-4)
     weights = th.tensor(list(map(lambda t: t[1], weights.items())))
+    weights = th.ones(len(weights))
     print(weights)
 
     y_train = th.tensor(y_train).to(th.float)
