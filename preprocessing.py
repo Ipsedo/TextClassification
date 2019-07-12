@@ -1,8 +1,10 @@
 import torch as th
 import re
 from nltk.stem import WordNetLemmatizer
+from nltk.corpus import wordnet
 from random import choice, shuffle
 from tqdm import tqdm
+
 
 __padding__ = "<padding>"
 lemma = WordNetLemmatizer()
@@ -31,8 +33,8 @@ def process_doc(sentence_list: list) -> list:
     for text in tqdm(sentence_list):
         l = split_doc(text)
         l = to_lower(l)
-        #l = filter_words(l, english_stopwords)
-        #l = lemma_words(l)
+        l = filter_words(l, english_stopwords)
+        l = lemma_words(l)
         res.append(l)
     return res
 
@@ -193,3 +195,40 @@ def compute_class_weights(label_list, eps=1e-6):
             weights[l] = eps
 
     return weights
+
+
+def rewrite_sentence(sentence: list):
+    """
+    pourri pour data augmentation
+    :param sentence:
+    :return:
+    """
+    new_sentence = []
+
+    for w in sentence:
+        possible_senses = wordnet.synsets(w)
+
+        if possible_senses:
+            syn = possible_senses[0].lemmas()
+
+            new_words = choice(syn).name().split("_")
+
+            new_sentence += new_words
+        else:
+            new_sentence.append(w)
+
+    return new_sentence
+
+
+def back_translate(sentence: str) -> list:
+    #gs = Goslate()
+    langs = ["fr", "de", "ar", "it", "zh", "ja", "ru", "es", "pt", "vi"]
+    main_lang = "en"
+
+    new_sentence = [sentence]
+
+    for l in langs:
+        s = backtranslate(sentence, l, main_lang)
+        new_sentence.append(s)
+
+    return new_sentence
