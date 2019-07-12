@@ -66,7 +66,7 @@ def duplicate_class(x_list: list, y_list: list, max_per_class=300):
     shuffle(tmp)
     x_res, y_res = zip(*tmp)
 
-    return x_res, y_res
+    return list(x_res), list(y_res)
 
 
 def create_vocab(sentence_list):
