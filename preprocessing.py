@@ -4,6 +4,8 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet
 from random import choice, shuffle
 from tqdm import tqdm
+import requests
+from bs4 import BeautifulSoup
 
 
 __padding__ = "<padding>"
@@ -228,7 +230,6 @@ def rewrite_corpus(sentence_list, label_list, limit_augmentation=800):
     for c, count in counter.items():
         to_add = int(limit_augmentation / count)
         to_add_per_data[c] = to_add
-    
 
     for s, l in tqdm(zip(sentence_list, label_list)):
 
