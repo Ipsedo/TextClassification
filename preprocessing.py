@@ -34,7 +34,7 @@ def process_doc(sentence_list: list) -> list:
         l = split_doc(text)
         l = to_lower(l)
         l = filter_words(l, english_stopwords)
-        l = lemma_words(l)
+        #l = lemma_words(l)
         res.append(l)
     return res
 
@@ -197,7 +197,7 @@ def compute_class_weights(label_list, eps=1e-6):
     return weights
 
 
-def rewrite_sentence(sentence: list, ratio=0.5):
+def rewrite_sentence(sentence: list, ratio=0.1):
     word_to_change = int(len(sentence) * ratio)
 
     for _ in range(word_to_change):
@@ -215,7 +215,7 @@ def rewrite_sentence(sentence: list, ratio=0.5):
     return sentence
 
 
-def rewrite_corpus(sentence_list, label_list, limit_augmentation=800, to_add=5):
+def rewrite_corpus(sentence_list, label_list, limit_augmentation=800):
     counter = {}
 
     for l in label_list:
@@ -223,11 +223,17 @@ def rewrite_corpus(sentence_list, label_list, limit_augmentation=800, to_add=5):
 
     new_sentence_list = []
     new_label_list = []
+    
+    to_add_per_data = {}
+    for c, count in counter.items():
+        to_add = int(limit_augmentation / count)
+        to_add_per_data=[c] = to_add
+    
 
     for s, l in tqdm(zip(sentence_list, label_list)):
 
         if counter[l] < limit_augmentation:
-            for _ in range(to_add):
+            for _ in range(to_add_per_data[l]):
                 rewrited_sentence = rewrite_sentence(s)
 
                 new_sentence_list.append(rewrited_sentence)
