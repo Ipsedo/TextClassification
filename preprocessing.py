@@ -4,14 +4,15 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet
 from random import choice, shuffle
 from tqdm import tqdm
-import requests
-from bs4 import BeautifulSoup
-
+from yandex.Translater import Translater
+from nlpaug.augmenter.word import Word2vecAug, GloVeAug
 
 __padding__ = "<padding>"
 lemma = WordNetLemmatizer()
 lemma.lemmatize("unused")
 english_stopwords = open("./datasets/english_stopwords.txt").read().split()
+#aug = Word2vecAug(model_path="/home/samuel/Documents/Stage_SG/nlpaug_models/GoogleNews-vectors-negative300.bin")
+glove_aug = GloVeAug(model_path="/home/samuel/Documents/Stage_SG/nlpaug_models/glove.6B.50d.txt")
 
 
 def split_doc(s):
@@ -199,8 +200,8 @@ def compute_class_weights(label_list, eps=1e-6):
     return weights
 
 
-def rewrite_sentence(sentence: list, ratio=0.1):
-    word_to_change = int(len(sentence) * ratio)
+def rewrite_sentence(sentence: str):
+    """word_to_change = int(len(sentence) * ratio)
 
     for _ in range(word_to_change):
         i = choice(range(len(sentence)))
@@ -214,7 +215,8 @@ def rewrite_sentence(sentence: list, ratio=0.1):
             del sentence[i]
             sentence[i:i] = new_words
 
-    return sentence
+    return sentence"""
+    return glove_aug.augment(sentence).replace("_", " ")
 
 
 def rewrite_corpus(sentence_list, label_list, limit_augmentation=800):
@@ -247,14 +249,16 @@ def rewrite_corpus(sentence_list, label_list, limit_augmentation=800):
 
 
 def back_translate(sentence: str) -> list:
-    gs = Goslate()
+    #gs = Goslate()
     langs = ["af", "sq", "ar", "am", "zh", "ja", "ms", "mk", "ht", "vi"]
     main_lang = "en"
 
     new_sentence = [sentence]
 
     for l in langs:
-        s = gs.translate(gs.translate(sentence, l), main_lang)
+        tr_1 = Translater(key="trnsl.1.1.20190715T073231Z.8560179895122412.c89f6ceed11aead6234cadbf49a04719f96027e0", from_lang=main_lang, to_lang=l, text=sentence)
+        tr_2 = Translater(key="trnsl.1.1.20190715T073231Z.8560179895122412.c89f6ceed11aead6234cadbf49a04719f96027e0", from_lang=l, to_lang=main_lang, text=tr_1.translate())
+        s = tr_2.translate()
         new_sentence.append(s)
 
     return new_sentence
@@ -330,7 +334,7 @@ if __name__ == "__main__":
 
     print("begin rewriting...")
 
-    x, y = rewrite_corpus(process_doc(x), y, limit_augmentation=3000)
+    x, y = rewrite_corpus(x, y, limit_augmentation=1000)
 
     print("Nb abstracts : %d" % len(x))
 
@@ -338,9 +342,10 @@ if __name__ == "__main__":
     for l in y:
         class_count[l] = 1 + class_count[l] if l in class_count else 1
     print(sorted(class_count.items(), key=lambda t: t[1]))
-    exit()
 
-    out_file = "dbpedia_filtered_augmented.txt"
+    out_file = "dbpedia_filtered_glove-augmented.txt"
+
+    print("writing file...")
 
     f = open(out_file, "w")
 
