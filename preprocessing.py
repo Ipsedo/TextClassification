@@ -4,25 +4,16 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet
 from random import choice, shuffle
 from tqdm import tqdm
-<<<<<<< HEAD
-#from yandex.Translater import Translater
-from nlpaug.augmenter.word import Word2vecAug, GloVeAug
-=======
 from yandex.Translater import Translater
 from nlpaug.augmenter.word import Word2vecAug, GloVeAug, FasttextAug
->>>>>>> ab7b979f3669054b29114bd52cf06cd9303a3d7d
 
 __padding__ = "<padding>"
 lemma = WordNetLemmatizer()
 lemma.lemmatize("unused")
 english_stopwords = open("./datasets/english_stopwords.txt").read().split()
 #aug = Word2vecAug(model_path="/home/samuel/Documents/Stage_SG/nlpaug_models/GoogleNews-vectors-negative300.bin")
-<<<<<<< HEAD
-glove_aug = GloVeAug(model_path="../../data/glove.6B.50d.txt")
-=======
 glove_aug = GloVeAug(model_path="/home/samuel/Documents/Stage_SG/nlpaug_models/glove.6B.50d.txt")
 #ft_aug = FasttextAug(model_path="/home/samuel/Documents/Stage_SG/nlpaug_models/wiki-news-300d-1M.vec")
->>>>>>> ab7b979f3669054b29114bd52cf06cd9303a3d7d
 
 
 def split_doc(s):
