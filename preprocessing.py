@@ -4,7 +4,7 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet
 from random import choice, shuffle
 from tqdm import tqdm
-from yandex.Translater import Translater
+#from yandex.Translater import Translater
 from nlpaug.augmenter.word import Word2vecAug, GloVeAug
 
 __padding__ = "<padding>"
@@ -12,7 +12,7 @@ lemma = WordNetLemmatizer()
 lemma.lemmatize("unused")
 english_stopwords = open("./datasets/english_stopwords.txt").read().split()
 #aug = Word2vecAug(model_path="/home/samuel/Documents/Stage_SG/nlpaug_models/GoogleNews-vectors-negative300.bin")
-glove_aug = GloVeAug(model_path="/home/samuel/Documents/Stage_SG/nlpaug_models/glove.6B.50d.txt")
+glove_aug = GloVeAug(model_path="../../data/glove.6B.50d.txt")
 
 
 def split_doc(s):
@@ -288,8 +288,8 @@ def back_translate_corpus(sentence_list, label_list, limit_augmentation=800):
     return new_sentence_list, new_label_list
 
 
-if __name__ == "__main__":
-    dbpedia = open("./datasets/dbpedia_pp_filtered.txt").readlines()
+def augment_main(in_file, out_file):
+    dbpedia = open(in_file).readlines()
 
     x = []
     y = []
@@ -343,8 +343,6 @@ if __name__ == "__main__":
         class_count[l] = 1 + class_count[l] if l in class_count else 1
     print(sorted(class_count.items(), key=lambda t: t[1]))
 
-    out_file = "dbpedia_filtered_glove-augmented.txt"
-
     print("writing file...")
 
     f = open(out_file, "w")
@@ -353,3 +351,7 @@ if __name__ == "__main__":
         f.write(s + "|||" + l + "\n")
 
     f.close()
+
+    
+if __name__ == "__main__":
+    augment_main("./datasets/dbpedia_pp_filtered.txt", "dbpedia_filtered_glove-augmented.txt")
