@@ -4,7 +4,7 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet
 from random import choice, shuffle
 from tqdm import tqdm
-from yandex.Translater import Translater
+#from yandex.Translater import Translater
 from nlpaug.augmenter.word import Word2vecAug, GloVeAug, FasttextAug
 from math import ceil
 from threading import Thread
@@ -14,7 +14,7 @@ lemma = WordNetLemmatizer()
 lemma.lemmatize("unused")
 english_stopwords = open("./datasets/english_stopwords.txt").read().split()
 #aug = Word2vecAug(model_path="/home/samuel/Documents/Stage_SG/nlpaug_models/GoogleNews-vectors-negative300.bin")
-glove_aug = GloVeAug(model_path="/home/samuel/Documents/Stage_SG/nlpaug_models/glove.6B.50d.txt")
+glove_aug = GloVeAug(model_path="../../data/glove.6B.50d.txt")
 #ft_aug = FasttextAug(model_path="/home/samuel/Documents/Stage_SG/nlpaug_models/wiki-news-300d-1M.vec")
 
 
@@ -265,7 +265,7 @@ def rewrite_corpus_threads(sentence_list, label_list, limit_augmentation=800):
         to_add = int(limit_augmentation / count)
         to_add_per_data[c] = to_add
 
-    nb_thread = 16
+    nb_thread = 4
     nb_pool = ceil(len(sentence_list) / nb_thread)
 
     tuple_list = list(zip(sentence_list, label_list))
@@ -339,7 +339,7 @@ def back_translate_corpus(sentence_list, label_list, limit_augmentation=800):
     return new_sentence_list, new_label_list
 
 
-def augment_main(in_file, out_file):
+def augment_main(in_file, out_file_train, out_file_dev):
     dbpedia = open(in_file).readlines()
 
     x = []
@@ -384,25 +384,37 @@ def augment_main(in_file, out_file):
     print("Nb abstracts : %d" % len(x))
 
     print("begin rewriting...")
+    
+    ratio = 0.7
+    nb_train = int(len(x) * ratio)
+    x_train, y_train = x[:nb_train], y[:nb_train]
+    x_dev, y_dev = x[nb_train:], y[nb_train:]
 
-    x, y = rewrite_corpus_threads(x, y, limit_augmentation=1000)
+    x_train, y_train = rewrite_corpus_threads(x_train, y_train, limit_augmentation=1000)
 
     print("Nb abstracts : %d" % len(x))
 
     class_count = {}
-    for l in y:
+    for l in y_train:
         class_count[l] = 1 + class_count[l] if l in class_count else 1
     print(sorted(class_count.items(), key=lambda t: t[1]))
 
     print("writing file...")
 
-    f = open(out_file, "w")
+    f = open(out_file_train, "w")
 
-    for s, l in tqdm(zip(x, y)):
+    for s, l in tqdm(zip(x_train, y_train)):
+        f.write(s + "|||" + l + "\n")
+
+    f.close()
+    
+    f = open(out_file_dev, "w")
+
+    for s, l in tqdm(zip(x_dev, y_dev)):
         f.write(s + "|||" + l + "\n")
 
     f.close()
 
     
 if __name__ == "__main__":
-    augment_main("./datasets/dbpedia_pp_filtered.txt", "dbpedia_filtered_glove-augmented.txt")
+    augment_main("./datasets/dbpedia_pp_filtered.txt", "dbpedia_filtered_glove-augmented_train.txt", "dbpedia_filtered_glove-augmented_dev.txt")
