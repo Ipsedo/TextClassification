@@ -6,6 +6,8 @@ from random import choice, shuffle
 from tqdm import tqdm
 from yandex.Translater import Translater
 from nlpaug.augmenter.word import Word2vecAug, GloVeAug, FasttextAug
+from math import ceil
+from threading import Thread
 
 __padding__ = "<padding>"
 lemma = WordNetLemmatizer()
@@ -249,6 +251,54 @@ def rewrite_corpus(sentence_list, label_list, limit_augmentation=800):
     return new_sentence_list, new_label_list
 
 
+def rewrite_corpus_threads(sentence_list, label_list, limit_augmentation=800):
+    counter = {}
+
+    for l in label_list:
+        counter[l] = 1 + counter[l] if l in counter else 1
+
+    new_sentence_list = []
+    new_label_list = []
+
+    to_add_per_data = {}
+    for c, count in counter.items():
+        to_add = int(limit_augmentation / count)
+        to_add_per_data[c] = to_add
+
+    nb_thread = 16
+    nb_pool = ceil(len(sentence_list) / nb_thread)
+
+    tuple_list = list(zip(sentence_list, label_list))
+
+    for idx in tqdm(range(nb_pool)):
+
+        thds = []
+        i_min = idx * nb_thread
+        i_max = (idx + 1) * nb_thread
+        i_max = i_max if i_max < len(sentence_list) else len(sentence_list)
+
+        def run(s, l):
+            if counter[l] < limit_augmentation:
+                for _ in range(to_add_per_data[l]):
+                    rewrited_sentence = rewrite_sentence(s)
+
+                    new_sentence_list.append(rewrited_sentence)
+                    new_label_list.append(l)
+
+            new_sentence_list.append(s)
+            new_label_list.append(l)
+
+        for sent, lbl in tuple_list[i_min:i_max]:
+            t = Thread(target=run, args=(sent, lbl))
+            t.start()
+            thds.append(t)
+
+        for t in thds:
+            t.join()
+
+    return new_sentence_list, new_label_list
+
+
 def back_translate(sentence: str) -> list:
     #gs = Goslate()
     langs = ["af", "sq", "ar", "am", "zh", "ja", "ms", "mk", "ht", "vi"]
@@ -335,7 +385,7 @@ def augment_main(in_file, out_file):
 
     print("begin rewriting...")
 
-    x, y = rewrite_corpus(x, y, limit_augmentation=1000)
+    x, y = rewrite_corpus_threads(x, y, limit_augmentation=1000)
 
     print("Nb abstracts : %d" % len(x))
 
