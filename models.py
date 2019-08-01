@@ -14,7 +14,7 @@ class ConvModelReuters(nn.Module):
         )
 
         self.seq_lin = nn.Sequential(
-            nn.Linear(1656, nb_class),
+            nn.Linear(2880, nb_class),
             nn.Softmax(dim=1)
         )
 

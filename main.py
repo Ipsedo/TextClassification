@@ -11,7 +11,7 @@ import pickle as pkl
 
 
 def dbpedia():
-    dbpedia = open("../../data/dbpedia_pp_filtered.txt").readlines()
+    dbpedia = open("../../data/dbpedia_pp_filtered_shuffled.txt").readlines()
 
     x = []
     y = []
@@ -31,14 +31,14 @@ def dbpedia():
 
         class_count[class_to_idx[lbl]] = 1 + class_count[class_to_idx[lbl]] if class_to_idx[lbl] in class_count else 1
 
-    tmp = list(zip(x, y))
-    shuffle(tmp)
-    x, y = zip(*tmp)
+    #tmp = list(zip(x, y))
+    #shuffle(tmp)
+    #x, y = zip(*tmp)
     
     print("Nb class : %d" % len(class_to_idx))
     print("Nb abstracts : %d" % len(x))
 
-    x, y = filter_limit_class(x, y, class_count, limit_up=3000, limit_down=300)
+    x, y = filter_limit_class(x, y, class_count, limit_up=5000, limit_down=-1)
 
     idx_to_class = {idx: cl for cl, idx in class_to_idx.items()}
 
@@ -71,12 +71,12 @@ def dbpedia():
     x_train, y_train = x[:nb_train], y[:nb_train]
     x_dev, y_dev = x[nb_train:], y[nb_train:]
     
-    x_train, y_train = rewrite_corpus(x_train, y_train, limit_augmentation=600)
-    x_train, y_train = filter_size(x_train, y_train, 500)
+    #x_train, y_train = rewrite_corpus(x_train, y_train, limit_augmentation=600)
+    #x_train, y_train = filter_size(x_train, y_train, 500)
     
-    weights = compute_class_weights(y_train, eps=1e-4)
+    weights = compute_class_weights(y_train + y_dev, eps=1e-4)
     weights = th.tensor(list(map(lambda t: t[1], weights.items())))
-    #weights = th.ones(len(weights))
+    weights = th.ones(len(weights))
     print(weights)
 
     y_train = th.tensor(y_train).to(th.float)
@@ -190,6 +190,7 @@ def dbpedia():
     th.save(m.state_dict(), model_file_name)
     pkl.dump(vocab, open(vocab_pickle_file_name, "wb"))
     pkl.dump(class_to_idx, open(class_to_idx_pickle_file_name, "wb"))
+    pkl.dump(acc, open("accuracy.pkl", "wb"))
 
 if __name__ == "__main__":
     #reuters()

@@ -5,7 +5,7 @@ from nltk.corpus import wordnet
 from random import choice, shuffle
 from tqdm import tqdm
 #from yandex.Translater import Translater
-from nlpaug.augmenter.word import Word2vecAug, GloVeAug, FasttextAug
+#from nlpaug.augmenter.word import Word2vecAug, GloVeAug, FasttextAug
 from math import ceil
 from threading import Thread
 
@@ -14,7 +14,7 @@ lemma = WordNetLemmatizer()
 lemma.lemmatize("unused")
 english_stopwords = open("./datasets/english_stopwords.txt").read().split()
 #aug = Word2vecAug(model_path="/home/samuel/Documents/Stage_SG/nlpaug_models/GoogleNews-vectors-negative300.bin")
-glove_aug = GloVeAug(model_path="../../data/glove.6B.50d.txt")
+#glove_aug = GloVeAug(model_path="../../data/glove.6B.50d.txt")
 #ft_aug = FasttextAug(model_path="/home/samuel/Documents/Stage_SG/nlpaug_models/wiki-news-300d-1M.vec")
 
 
@@ -39,7 +39,7 @@ def process_doc(sentence_list: list) -> list:
     for text in tqdm(sentence_list):
         l = split_doc(text)
         l = to_lower(l)
-        l = filter_words(l, english_stopwords)
+        #l = filter_words(l, english_stopwords)
         #l = lemma_words(l)
         res.append(l)
     return res
@@ -196,7 +196,7 @@ def compute_class_weights(label_list, eps=1e-6):
     total_example = len(label_list)
 
     for l, c in counter.items():
-        weights[l] = 1000.0 / c
+        weights[l] = 50.0 / c
         if weights[l] == 0:
             weights[l] = eps
 
