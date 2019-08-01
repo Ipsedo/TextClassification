@@ -11,7 +11,7 @@ import pickle as pkl
 
 
 def dbpedia():
-    dbpedia = open("../../data/dbpedia_pp_filtered.txt").readlines()
+    dbpedia = open("./datasets/dbpedia_pp_filtered.txt").readlines()
 
     x = []
     y = []
@@ -31,9 +31,9 @@ def dbpedia():
 
         class_count[class_to_idx[lbl]] = 1 + class_count[class_to_idx[lbl]] if class_to_idx[lbl] in class_count else 1
 
-    tmp = list(zip(x, y))
+    """tmp = list(zip(x, y))
     shuffle(tmp)
-    x, y = zip(*tmp)
+    x, y = zip(*tmp)"""
     
     print("Nb class : %d" % len(class_to_idx))
     print("Nb abstracts : %d" % len(x))
@@ -71,8 +71,8 @@ def dbpedia():
     x_train, y_train = x[:nb_train], y[:nb_train]
     x_dev, y_dev = x[nb_train:], y[nb_train:]
     
-    x_train, y_train = rewrite_corpus(x_train, y_train, limit_augmentation=600)
-    x_train, y_train = filter_size(x_train, y_train, 500)
+    #x_train, y_train = rewrite_corpus(x_train, y_train, limit_augmentation=600)
+    #x_train, y_train = filter_size(x_train, y_train, 500)
     
     weights = compute_class_weights(y_train, eps=1e-4)
     weights = th.tensor(list(map(lambda t: t[1], weights.items())))
