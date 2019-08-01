@@ -75,7 +75,7 @@ def duplicate_class(x_list: list, y_list: list, max_per_class=300):
 
 def create_vocab(sentence_list):
     vocab = {__padding__: 0}
-    for s in sentence_list:
+    for s in tqdm(sentence_list):
         for w in s:
             if w not in vocab:
                 vocab[w] = len(vocab)
@@ -88,7 +88,7 @@ def get_sentence_max_len(sentence_list):
 
 def pad_sentence(sentence_list, max_len):
     res = []
-    for s in sentence_list:
+    for s in tqdm(sentence_list):
         to_add = max_len - len(s)
         res.append(s + [__padding__] * to_add)
     return res
@@ -97,7 +97,7 @@ def pad_sentence(sentence_list, max_len):
 def pass_to_idx(sentence_list, vocab):
     res = []
 
-    for s in sentence_list:
+    for s in tqdm(sentence_list):
         new_s = []
         for w in s:
             new_s.append(vocab[w])

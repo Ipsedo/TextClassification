@@ -40,7 +40,7 @@ class ConvModelWiki(nn.Module):
         )
 
         self.seq_lin = nn.Sequential(
-            nn.Linear(8124, 1),
+            nn.Linear(12180, 1),
             nn.Sigmoid()
         )
 
