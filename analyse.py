@@ -1,7 +1,8 @@
 from os.path import isdir, exists, join
 import pickle as pkl
 from models import ConvModelDBPedia_V1
-from preprocessing import __padding__, process_doc, pass_to_idx_and_padd
+from preprocessing import __padding__
+from preprocessing import *
 import torch as th
 from tqdm import tqdm
 from statistics import mean
@@ -9,6 +10,30 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+def vocab_count():
+    dbpedia = open("./datasets/dbpedia_pp_filtered.txt").readlines()
+
+    x = []
+    y = []
+
+    for l in tqdm(dbpedia):
+        txt = l.split("|||")[1]
+        lbl = l.split("|||")[0]
+        x.append(txt)
+        y.append(lbl)
+
+    print("Nb abstracts : %d" % len(x))
+
+    x = process_doc(x)
+
+    word_count = count_world(x)
+
+    x = filter_word_occ(x, word_count, 10)
+
+    x, y = filter_size(x, y, 500)
+
+    vocab = create_vocab(x)
+    print("Vocab created (size = %d)" % len(vocab))
 
 
 def visu_dbpedia():
@@ -45,8 +70,7 @@ def visu_dbpedia():
     plt.xticks(rotation="vertical")
     plt.show()
 
-
-if __name__ == "__main__":
+def main_2():
     path = "./results/results_cnn-v1-128-184-256_limited-10000"
 
     if not (exists(path) and isdir(path)):
@@ -91,7 +115,7 @@ if __name__ == "__main__":
             np.log10(list(map(lambda t: t[1], sorted(class_count.items(), key=lambda t: t[1], reverse=True)))))
     plt.ylabel("log10 - Effectif")
     plt.xlabel("Class ID")
-    plt.title("Effectifs classes (log10)")
+    plt.title("DBPedia : Effectifs classes (log10)")
     plt.legend()
     plt.show()
 
@@ -99,6 +123,9 @@ if __name__ == "__main__":
             list(map(lambda t: t[1], sorted(class_count.items(), key=lambda t: t[1], reverse=True))))
     plt.ylabel("Effectif")
     plt.xlabel("Class ID")
-    plt.title("Effectifs classes")
+    plt.title("DBPedia : Effectifs classes")
     plt.legend()
     plt.show()
+
+if __name__ == "__main__":
+    vocab_count()
