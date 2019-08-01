@@ -1,7 +1,18 @@
+import nltk
+from nltk.corpus import reuters
+from preprocessing import *
+from preprocessing import __padding__
+import torch as th
+import torch.nn as nn
+from models import ConvModelWiki, ConvModelReuters
+from torchnet.meter import AUCMeter
+import matplotlib.pyplot as plt
+
+
 nltk.download('reuters')
 
 
-def reuters():
+def reuters_test():
     classes = ["earn", "acq", "money-fx", "grain", "crude", "trade", "interest", "wheat", "ship", "corn"]
 
     class_to_idx = {c: i for i, c in enumerate(classes)}
@@ -137,7 +148,7 @@ def reuters():
     plt.show()
 
 
-def wiki():
+def wiki_lda_cnn():
     # TODO add script for Wiki dump with LDA
     wiki = open("/home/samuel/Documents/Stage_SG/lda/labelised_raw_wiki.txt").readlines()
     pos_class = [89]
@@ -200,7 +211,6 @@ def wiki():
     optim = th.optim.SGD(m.parameters(), lr=1e-4)
 
     losses = []
-    acc = []
     aucs = []
 
     for e in range(nb_epoch):
@@ -257,6 +267,10 @@ def wiki():
     plt.plot(losses, "r", label="loss value")
     plt.plot(aucs, "b", label="roc auc value")
     plt.xlabel("Epoch")
-    plt.title("Wiki labeled with LDA : CNN perf (topic {} vs {})".format(pos_class, neg_class))
+    plt.title("CNN perf : Wiki labeled with LDA (topic {} vs {})".format(pos_class, neg_class))
     plt.legend()
     plt.show()
+
+
+if __name__ == "__main__":
+    wiki_lda_cnn()
