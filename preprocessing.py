@@ -39,7 +39,7 @@ def process_doc(sentence_list: list) -> list:
     for text in tqdm(sentence_list):
         l = split_doc(text)
         l = to_lower(l)
-        #l = filter_words(l, english_stopwords)
+        l = filter_words(l, english_stopwords)
         #l = lemma_words(l)
         res.append(l)
     return res
@@ -203,8 +203,8 @@ def compute_class_weights(label_list, eps=1e-6):
     return weights
 
 
-def rewrite_sentence(sentence: str):
-    """word_to_change = int(len(sentence) * ratio)
+def rewrite_sentence(sentence: list, ratio=2e-1):
+    word_to_change = int(len(sentence) * ratio)
 
     for _ in range(word_to_change):
         i = choice(range(len(sentence)))
@@ -217,41 +217,40 @@ def rewrite_sentence(sentence: str):
             new_words = choice(syn).name().split("_")
             del sentence[i]
             sentence[i:i] = new_words
-
-    return sentence"""
-    return glove_aug.augment(sentence).replace("_", " ")
+    return sentence
+    #return glove_aug.augment(sentence).replace("_", " ")
 
 
 def rewrite_corpus(sentence_list, label_list, limit_augmentation=800):
     counter = {}
+    per_class_sentence = {}
 
-    for l in label_list:
+    for s, l in zip(sentence_list, label_list):
         counter[l] = 1 + counter[l] if l in counter else 1
-
-    new_sentence_list = []
-    new_label_list = []
+        if l not in per_class_sentence:
+            per_class_sentence[l] = []
+        per_class_sentence[l].append(s)
     
     to_add_per_data = {}
     for c, count in counter.items():
-        to_add = int(limit_augmentation / count)
-        to_add_per_data[c] = to_add
+        to_add = int(limit_augmentation - count)
+        to_add_per_data[c] = max(to_add, 0)
+    print("Data dupl. : ", to_add_per_data)
 
-    for s, l in tqdm(zip(sentence_list, label_list)):
+    for c, to_add in tqdm(to_add_per_data.items()):
+        for _ in range(to_add):
+            sentence_list.append(rewrite_sentence(choice(per_class_sentence[c])))
+            label_list.append(c)
 
-        if counter[l] < limit_augmentation:
-            for _ in range(to_add_per_data[l]):
-                rewrited_sentence = rewrite_sentence(s)
+    tmp = list(zip(sentence_list, label_list))
+    shuffle(tmp)
+    sentence_list, label_list = zip(*tmp)
 
-                new_sentence_list.append(rewrited_sentence)
-                new_label_list.append(l)
-
-        new_sentence_list.append(s)
-        new_label_list.append(l)
-
-    return new_sentence_list, new_label_list
+    return list(sentence_list), list(label_list)
 
 
 def rewrite_corpus_threads(sentence_list, label_list, limit_augmentation=800):
+    raise RuntimeError("Not well working !")
     counter = {}
 
     for l in label_list:
@@ -262,8 +261,8 @@ def rewrite_corpus_threads(sentence_list, label_list, limit_augmentation=800):
 
     to_add_per_data = {}
     for c, count in counter.items():
-        to_add = int(limit_augmentation / count)
-        to_add_per_data[c] = to_add
+        to_add = int(limit_augmentation - count)
+        to_add_per_data[c] = max(to_add, 0)
 
     nb_thread = 4
     nb_pool = ceil(len(sentence_list) / nb_thread)
