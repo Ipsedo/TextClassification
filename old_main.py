@@ -5,7 +5,7 @@ from preprocessing import __padding__
 import torch as th
 import torch.nn as nn
 from models import ConvModelWiki, ConvModelReuters
-from torchnet.meter import AUCMeter
+from torchnet.meter import AUCMeter, ConfusionMeter
 import matplotlib.pyplot as plt
 
 
@@ -47,10 +47,14 @@ def reuters_test():
             x_dev.append(doc)
             y_dev.append(class_to_idx[cat])
 
-    x_train, y_train = duplicate_class(x_train, y_train)
+    x_train, y_train = limit_class_occurence(x_train, y_train, limit=3000)
+    x_train, y_train = duplicate_class(x_train, y_train, max_per_class=3000)
 
     x_train = process_doc(x_train)
     x_dev = process_doc(x_dev)
+
+    #x_train, y_train = rewrite_corpus(x_train, y_train, limit_augmentation=500)
+    #print("Synonyms : %d" % len(x_train))
 
     y_train = th.tensor(y_train)
     y_dev = th.tensor(y_dev)
@@ -78,7 +82,7 @@ def reuters_test():
     batch_size = 4
     nb_batch = ceil(x_train.size(0) / batch_size)
 
-    nb_epoch = 40
+    nb_epoch = 30
 
     losses = []
     acc = []
@@ -119,6 +123,7 @@ def reuters_test():
             correct = 0
 
             aucs = {i: AUCMeter() for i in range(len(classes))}
+            conf_meter = ConfusionMeter(len(classes), normalized=True)
 
             for i in tqdm(range(nb_batch_test)):
                 i_min = i * batch_size
@@ -128,6 +133,8 @@ def reuters_test():
                 x_b, y_b = x_dev[i_min:i_max].cuda(), y_dev[i_min:i_max].cuda()
 
                 out = m(x_b)
+
+                conf_meter.add(out.argmax(dim=-1), y_b)
 
                 correct += th.where(out.argmax(dim=1) == y_b, th.tensor(1).cuda(), th.tensor(0).cuda()).sum().cpu().item()
 
@@ -142,9 +149,18 @@ def reuters_test():
                 print("AUC %s = %f" % (idx_to_class[i], aucs[i].value()[0]))
             acc.append(correct / x_dev.size(0))
 
-    plt.plot(losses, 'r')
-    plt.plot(acc, "b")
+            plt.title("Confusion matix on Reuters without data augmentation, epoch %d" % e)
+            plt.matshow(conf_meter.value())
+            plt.colorbar()
+            plt.title("Confusion Matrix - Epoch %d" % e)
+            plt.legend()
+            plt.show()
+
+    plt.title("Small CNN on Reuters without data duplication")
+    plt.plot(losses, 'r', label="loss value")
+    plt.plot(acc, "b", label="accuracy")
     plt.xlabel("Epoch")
+    plt.legend()
     plt.show()
 
 
@@ -273,4 +289,5 @@ def wiki_lda_cnn():
 
 
 if __name__ == "__main__":
-    wiki_lda_cnn()
+    #wiki_lda_cnn()
+    reuters_test()
