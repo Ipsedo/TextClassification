@@ -1,5 +1,6 @@
 from tqdm import tqdm
 import re
+from random import shuffle
 
 
 def filter_things(titles, labels):
@@ -79,7 +80,20 @@ def main(type_file, abstract_file, out_file):
     dataset = create_dataset(title_to_type, long_abstracts)
 
     write_dataset(dataset, out_file)
+    
 
+def shuffle_data(file_name: str, out_file_name: str):
+    file = open(file_name, "r")
+    lines = file.readlines()
+    shuffle(lines)
+    
+    out_file = open(out_file_name, "w")
+    
+    for l in tqdm(lines):
+        out_file.write(l)
+    
+    file.close()
+    out_file.close()
 
 if __name__ == "__main__":
     main("./datasets/instance_types_en.ttl",
