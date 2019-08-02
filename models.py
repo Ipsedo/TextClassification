@@ -14,8 +14,8 @@ class ConvModelReuters(nn.Module):
         )
 
         self.seq_lin = nn.Sequential(
-            nn.Linear(1656, nb_class),
-            nn.Softmax(dim=1)
+            nn.Linear(12 * int(int(sent_max_len - 2) / 4), nb_class),
+            nn.Softmax(dim=-1)
         )
 
     def forward(self, x):
