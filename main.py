@@ -38,7 +38,7 @@ def dbpedia():
     print("Nb class : %d" % len(class_to_idx))
     print("Nb abstracts : %d" % len(x))
 
-    x, y = filter_limit_class(x, y, class_count, limit_up=5000, limit_down=-1)
+    x, y = filter_limit_class(x, y, class_count, limit_up=1000, limit_down=-1)
 
     idx_to_class = {idx: cl for cl, idx in class_to_idx.items()}
 
@@ -76,7 +76,7 @@ def dbpedia():
     
     weights = compute_class_weights(y_train + y_dev, eps=1e-4)
     weights = th.tensor(list(map(lambda t: t[1], weights.items())))
-    weights = th.ones(len(weights))
+    weights = th.ones(364)
     print(weights)
 
     y_train = th.tensor(y_train).to(th.float)
@@ -98,7 +98,7 @@ def dbpedia():
     batch_size = 16
     nb_batch = floor(x_train.size(0) / batch_size)
 
-    nb_epoch = 20
+    nb_epoch = 10
 
     m = ConvModelDBPedia_V1(len(vocab), len(class_to_idx), vocab[__padding__])
     loss_fn = nn.NLLLoss(weight=weights)
