@@ -235,7 +235,6 @@ def rewrite_corpus(sentence_list, label_list, limit_augmentation=800):
     for c, count in counter.items():
         to_add = int(limit_augmentation - count)
         to_add_per_data[c] = max(to_add, 0)
-    print("Data dupl. : ", to_add_per_data)
 
     for c, to_add in tqdm(to_add_per_data.items()):
         for _ in range(to_add):

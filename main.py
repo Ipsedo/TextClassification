@@ -38,7 +38,7 @@ def dbpedia():
     print("Nb class : %d" % len(class_to_idx))
     print("Nb abstracts : %d" % len(x))
 
-    x, y = filter_limit_class(x, y, class_count, limit_up=1000, limit_down=-1)
+    x, y = filter_limit_class(x, y, class_count, limit_up=1000, limit_down=50)
 
     idx_to_class = {idx: cl for cl, idx in class_to_idx.items()}
 
@@ -71,12 +71,13 @@ def dbpedia():
     x_train, y_train = x[:nb_train], y[:nb_train]
     x_dev, y_dev = x[nb_train:], y[nb_train:]
     
-    #x_train, y_train = rewrite_corpus(x_train, y_train, limit_augmentation=600)
-    #x_train, y_train = filter_size(x_train, y_train, 500)
+    print("Data augmentation (synonyms)")
+    x_train, y_train = rewrite_corpus(x_train, y_train, limit_augmentation=500)
+    x_train, y_train = filter_size(x_train, y_train, 500)
     
     weights = compute_class_weights(y_train + y_dev, eps=1e-4)
     weights = th.tensor(list(map(lambda t: t[1], weights.items())))
-    weights = th.ones(364)
+    weights = th.ones(weights.size(0))
     print(weights)
 
     y_train = th.tensor(y_train).to(th.float)
@@ -106,7 +107,7 @@ def dbpedia():
     m.cuda()
     loss_fn.cuda()
 
-    optim = th.optim.Adam(m.parameters(), lr=1e-4)
+    optim = th.optim.Adam(m.parameters(), lr=3e-5)
 
     losses = []
     acc = []
