@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from torchnet.meter import ConfusionMeter
 import numpy as np
 import pickle as pkl
+from sklearn.metrics import cohen_kappa_score
 
 
 def dbpedia():
@@ -38,7 +39,8 @@ def dbpedia():
     print("Nb class : %d" % len(class_to_idx))
     print("Nb abstracts : %d" % len(x))
 
-    x, y = filter_limit_class(x, y, class_count, limit_up=1000, limit_down=-1)
+
+    x, y = filter_limit_class(x, y, class_count, limit_up=1000, limit_down=300)
 
     idx_to_class = {idx: cl for cl, idx in class_to_idx.items()}
 
@@ -71,7 +73,8 @@ def dbpedia():
     x_train, y_train = x[:nb_train], y[:nb_train]
     x_dev, y_dev = x[nb_train:], y[nb_train:]
     
-    #x_train, y_train = rewrite_corpus(x_train, y_train, limit_augmentation=600)
+    #print("Data augmentation (synonyms)")
+    #x_train, y_train = rewrite_corpus(x_train, y_train, limit_augmentation=500)
     #x_train, y_train = filter_size(x_train, y_train, 500)
     
     weights = compute_class_weights(y_train + y_dev, eps=1e-4)
@@ -106,7 +109,7 @@ def dbpedia():
     m.cuda()
     loss_fn.cuda()
 
-    optim = th.optim.Adam(m.parameters(), lr=1e-4)
+    optim = th.optim.Adam(m.parameters(), lr=3e-5)
 
     losses = []
     acc = []
@@ -142,6 +145,9 @@ def dbpedia():
         losses.append(sum_loss / nb_batch)
 
         correct_answer = 0
+        
+        y_pred = []
+        y_real = []
 
         with th.no_grad():
             m.eval()
@@ -156,10 +162,20 @@ def dbpedia():
                 x_b, y_b = x_dev[i_min:i_max].cuda(), y_dev[i_min:i_max].cuda().to(th.long)
 
                 out = m(x_b)
+                
+                y_pred.append(out.argmax(dim=-1))
+                y_real.append(y_b)
 
                 conf_meter.add(out, y_b)
 
                 correct_answer += (out.argmax(dim=-1) == y_b).sum().item()
+        
+        y_pred = th.cat(y_pred, dim=0)
+        y_real = th.cat(y_real, dim=0)
+        
+        cohen_kappa = cohen_kappa_score(y_pred.cpu().numpy(), y_real.cpu().numpy())
+        
+        print("Cohen Kappa Score :", cohen_kappa)
 
         correct_answer /= x_dev.size(0)
 
