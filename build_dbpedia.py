@@ -8,7 +8,7 @@ def filter_things(titles, labels):
     new_labels = []
 
     for t, l in tqdm(zip(titles, labels)):
-        if l != "owl#Thing":
+        if "Thing" not in l:
             new_labels.append(l)
             new_titles.append(t)
     return new_titles, new_labels
@@ -30,31 +30,19 @@ def create_dataset(title_to_type, abstracts):
             continue
 
         if title in title_to_type:
-            data = (title_to_type[title], abst)
+            data = (title, title_to_type[title], abst)
             data_set.append(data)
 
+    shuffle(data_set)
     return data_set
 
 
 def write_dataset(data_set, file_name):
     out_file = open(file_name, "w")
 
-    for lbl, data in tqdm(data_set):
-        line = lbl + "|||" + data
+    for title, lbl, data in tqdm(data_set):
+        line = lbl + "|||" + data + "|||" + title
         out_file.write(line + "\n")
-
-
-def pass_to_parent_class(title_to_type, ontology):
-    #return {t: str(ontology[l].is_a[0]).split(".")[-1] for t, l in title_to_type.items() if ontology[l] is not None}
-    res = {}
-
-    for t, l in title_to_type.items():
-        if ontology[l] is not None:
-            parent_type = str(ontology[l].is_a[0]).split(".")[-1]
-            parent_type = l if parent_type == "Thing" else parent_type
-            res[t] = parent_type
-
-    return res
 
 
 def main(type_file, abstract_file, out_file):
@@ -80,20 +68,7 @@ def main(type_file, abstract_file, out_file):
     dataset = create_dataset(title_to_type, long_abstracts)
 
     write_dataset(dataset, out_file)
-    
 
-def shuffle_data(file_name: str, out_file_name: str):
-    file = open(file_name, "r")
-    lines = file.readlines()
-    shuffle(lines)
-    
-    out_file = open(out_file_name, "w")
-    
-    for l in tqdm(lines):
-        out_file.write(l)
-    
-    file.close()
-    out_file.close()
 
 if __name__ == "__main__":
     main("./datasets/instance_types_en.ttl",
